@@ -6,16 +6,13 @@ import { Download, RefreshCw, Wand2, Type } from "lucide-react";
 // テンプレート画像のリスト（今回は仮のカラーグラデーションなどを想定）
 // テンプレート画像のリスト
 const TEMPLATES = [
-  { id: "1", name: "ドリーム", bg: "bg-linear-to-br from-purple-500 to-pink-500" },
-  { id: "2", name: "サイバー", bg: "bg-linear-to-r from-cyan-500 to-blue-500" },
-  { id: "3", name: "フォレスト", bg: "bg-linear-to-tr from-emerald-500 to-teal-600" },
-  { id: "4", name: "サンセット", bg: "bg-linear-to-bl from-orange-400 to-rose-400" },
-  { id: "5", name: "ミッドナイト", bg: "bg-linear-to-br from-indigo-500 to-purple-800" },
-  { id: "6", name: "ボルケーノ", bg: "bg-linear-to-r from-rose-500 to-orange-400" },
-  { id: "7", name: "オーシャン", bg: "bg-linear-to-tr from-blue-400 to-emerald-400" },
-  { id: "8", name: "サニー", bg: "bg-linear-to-br from-amber-400 to-orange-500" },
-  { id: "9", name: "ディープ", bg: "bg-linear-to-br from-slate-800 to-zinc-900" },
-  { id: "10", name: "ネオン", bg: "bg-linear-to-r from-fuchsia-500 to-purple-600" },
+  { id: "m1", name: "This is Fine (炎上)", bg: "fine", mode: "meme", thumb: "/memes/fine.png" },
+  { id: "m2", name: "Doge (宇宙)", bg: "doge", mode: "meme", thumb: "/memes/doge.png" },
+  { id: "m3", name: "よそ見 (浮気)", bg: "distracted", mode: "meme", thumb: "/memes/distracted.png" },
+  { id: "m4", name: "Stonks (爆益)", bg: "stonks", mode: "meme", thumb: "/memes/stonks.png" },
+  { id: "m5", name: "万物悟り (宇宙)", bg: "galaxy", mode: "meme", thumb: "/memes/galaxy.png" },
+  { id: "1", name: "パープル", bg: "bg-linear-to-br from-purple-500 to-pink-500", mode: "color" },
+  { id: "2", name: "サイバー", bg: "bg-linear-to-r from-cyan-500 to-blue-500", mode: "color" },
 ];
 
 // 煽り文句のプリセット
@@ -33,7 +30,7 @@ export default function Home() {
   const [isGenerating, setIsGenerating] = useState(false);
 
   // プレビュー用パラメータ
-  const previewUrl = `/api/og?bg=${encodeURIComponent(selectedTemplate.bg)}&text=${encodeURIComponent(customText)}`;
+  const previewUrl = `/api/og?bg=${encodeURIComponent(selectedTemplate.bg)}&text=${encodeURIComponent(customText)}&mode=${selectedTemplate.mode}`;
 
   const handleDownload = async () => {
     setIsGenerating(true);
@@ -152,14 +149,19 @@ export default function Home() {
                   className={`
                     relative aspect-video rounded-xl overflow-hidden border-2 transition-all p-1
                     ${selectedTemplate.id === tmpl.id 
-                      ? "border-purple-500 shadow-md scale-[1.02]" 
-                      : "border-transparent hover:border-purple-300 hover:scale-[1.01] opacity-80 hover:opacity-100"
+                      ? "border-rose-500 shadow-md scale-[1.02]" 
+                      : "border-transparent hover:border-rose-300 hover:scale-[1.01] opacity-80 hover:opacity-100"
                     }
                   `}
                 >
-                  <div className={`w-full h-full rounded-lg ${tmpl.bg}`} />
+                  {tmpl.mode === "meme" ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={tmpl.thumb} alt={tmpl.name} className="w-full h-full object-cover rounded-lg" />
+                  ) : (
+                    <div className={`w-full h-full rounded-lg ${tmpl.bg}`} />
+                  )}
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <span className="bg-black/40 text-white text-xs font-bold px-2 py-1 rounded backdrop-blur-sm">
+                    <span className="bg-black/60 text-white text-[10px] font-bold px-2 py-0.5 rounded backdrop-blur-sm">
                       {tmpl.name}
                     </span>
                   </div>

@@ -9,18 +9,28 @@ export async function GET(req: NextRequest) {
 
     const bg = searchParams.get("bg") || "bg-zinc-900";
     const text = searchParams.get("text") || "（※LGTM）";
+    const mode = searchParams.get("mode") || "color";
 
     let bgColor = "#18181b";
-    if (bg.includes("purple-500")) bgColor = "#a855f7";
-    else if (bg.includes("cyan-500")) bgColor = "#06b6d4";
-    else if (bg.includes("gray-900")) bgColor = "#111827";
-    else if (bg.includes("green-400")) bgColor = "#4ade80";
-    else if (bg.includes("orange-400")) bgColor = "#fb923c";
-    else if (bg.includes("emerald-500")) bgColor = "#10b981";
-    else if (bg.includes("indigo-500")) bgColor = "#6366f1";
-    else if (bg.includes("rose-500")) bgColor = "#f43f5e";
-    else if (bg.includes("amber-500")) bgColor = "#f59e0b";
-    else if (bg.includes("slate-800")) bgColor = "#1e293b";
+    let bgImage = null;
+
+    if (mode === "meme") {
+      // For memes, we use the absolute URL to the public image
+      const host = req.headers.get("host") || "localhost:3000";
+      const protocol = host.includes("localhost") ? "http" : "https";
+      bgImage = `${protocol}://${host}/memes/${bg}.png`;
+    } else {
+      if (bg.includes("purple-500")) bgColor = "#a855f7";
+      else if (bg.includes("cyan-500")) bgColor = "#06b6d4";
+      else if (bg.includes("gray-900")) bgColor = "#111827";
+      else if (bg.includes("green-400")) bgColor = "#4ade80";
+      else if (bg.includes("orange-400")) bgColor = "#fb923c";
+      else if (bg.includes("emerald-500")) bgColor = "#10b981";
+      else if (bg.includes("indigo-500")) bgColor = "#6366f1";
+      else if (bg.includes("rose-500")) bgColor = "#f43f5e";
+      else if (bg.includes("amber-500")) bgColor = "#f59e0b";
+      else if (bg.includes("slate-800")) bgColor = "#1e293b";
+    }
 
     return new ImageResponse(
       (
@@ -38,17 +48,33 @@ export async function GET(req: NextRequest) {
             fontFamily: "sans-serif",
           }}
         >
-          <div
-            style={{
-              position: "absolute",
-              top: "-50%",
-              left: "-10%",
-              width: "120%",
-              height: "120%",
-              background: "radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0.5) 100%)",
-              zIndex: 0,
-            }}
-          />
+          {bgImage && (
+            <img
+              src={bgImage}
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                zIndex: 0,
+              }}
+            />
+          )}
+          {!bgImage && (
+            <div
+              style={{
+                position: "absolute",
+                top: "-50%",
+                left: "-10%",
+                width: "120%",
+                height: "120%",
+                background: "radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0.5) 100%)",
+                zIndex: 0,
+              }}
+            />
+          )}
 
           <div
             style={{
