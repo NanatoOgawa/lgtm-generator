@@ -33,10 +33,10 @@ export async function GET(req: NextRequest) {
     }
 
     const textLength = text.length;
-    let fontSize = 120;
-    if (textLength > 20) fontSize = 60;
-    else if (textLength > 15) fontSize = 80;
-    else if (textLength > 10) fontSize = 100;
+    // 計算式: 1100px (利用可能幅) / 文字数 * 調整係数
+    // 日本語文字は幅広いため、係数を考慮
+    let fontSize = Math.floor(1100 / Math.max(7, textLength * 0.9));
+    fontSize = Math.min(140, Math.max(40, fontSize)); // 上限140, 下限40
 
     return new ImageResponse(
       (
