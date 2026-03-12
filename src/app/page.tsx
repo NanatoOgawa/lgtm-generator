@@ -35,7 +35,7 @@ export default function Home() {
     const timer = setTimeout(() => {
       const url = `/api/og?bg=${encodeURIComponent(selectedTemplate.bg)}&text=${encodeURIComponent(customText)}&mode=${selectedTemplate.mode}`;
       setPreviewUrl(url);
-    }, 400); // 400ms待ってから更新
+    }, 200); // 200msに短縮して反応速度を向上
 
     return () => clearTimeout(timer);
   }, [selectedTemplate, customText]);
