@@ -33,10 +33,10 @@ export async function GET(req: NextRequest) {
     }
 
     const textLength = text.length;
-    // 計算式: 1100px (利用可能幅) / 文字数 * 調整係数
-    // 日本語文字は幅広いため、係数を考慮
-    let fontSize = Math.floor(1100 / Math.max(7, textLength * 0.9));
-    fontSize = Math.min(140, Math.max(40, fontSize)); // 上限140, 下限40
+    // 計算式: 1000px (安全幅) / 文字数
+    // 日本語は1文字 = 1em として計算し、余裕を持たせる
+    let fontSize = Math.floor(1000 / Math.max(7, textLength));
+    fontSize = Math.min(130, Math.max(30, fontSize)); // 上限を少し下げ、下限も下げる
 
     return new ImageResponse(
       (
@@ -141,7 +141,7 @@ export async function GET(req: NextRequest) {
         height: 630,
       }
     );
-  } catch (e: any) {
+  } catch (e: unknown) {
     console.error(e);
     return new Response(`Failed to generate the image`, {
       status: 500,

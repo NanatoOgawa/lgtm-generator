@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Download, RefreshCw, Wand2, Type } from "lucide-react";
 
 // テンプレート画像のリスト（今回は仮のカラーグラデーションなどを想定）
@@ -28,11 +28,20 @@ export default function Home() {
   const [selectedTemplate, setSelectedTemplate] = useState(TEMPLATES[0]);
   const [customText, setCustomText] = useState(PRESETS[0]);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-  // プレビュー用パラメータ
-  const previewUrl = `/api/og?bg=${encodeURIComponent(selectedTemplate.bg)}&text=${encodeURIComponent(customText)}&mode=${selectedTemplate.mode}`;
+  // プレビュー生成の負荷を抑えるためのデバウンス処理
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const url = `/api/og?bg=${encodeURIComponent(selectedTemplate.bg)}&text=${encodeURIComponent(customText)}&mode=${selectedTemplate.mode}`;
+      setPreviewUrl(url);
+    }, 400); // 400ms待ってから更新
+
+    return () => clearTimeout(timer);
+  }, [selectedTemplate, customText]);
 
   const handleDownload = async () => {
+    if (!previewUrl) return;
     setIsGenerating(true);
     try {
       const res = await fetch(previewUrl);
@@ -74,18 +83,27 @@ export default function Home() {
         <div className="flex flex-col space-y-6 lg:sticky lg:top-8 order-2 lg:order-1">
           <div className="bg-white dark:bg-zinc-900 rounded-3xl shadow-xl shadow-zinc-200/50 dark:shadow-none border border-zinc-200 dark:border-zinc-800 p-4 overflow-hidden">
             <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center group">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img 
-                src={previewUrl} 
-                alt="LGTM Preview" 
-                className="w-full h-full object-cover transition-transform duration-500"
-                crossOrigin="anonymous"
-              />
+              {previewUrl && (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img 
+                  src={previewUrl} 
+                  alt="LGTM Preview" 
+                  className="w-full h-full object-cover transition-transform duration-500"
+                  crossOrigin="anonymous"
+                />
+              )}
+              
+              {!previewUrl && (
+                <div className="flex flex-col items-center gap-2 text-zinc-400">
+                  <RefreshCw className="w-8 h-8 animate-spin" />
+                  <span className="text-sm font-medium">生成中...</span>
+                </div>
+              )}
               
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
                 <button 
                   onClick={handleDownload}
-                  disabled={isGenerating}
+                  disabled={isGenerating || !previewUrl}
                   className="translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 bg-white/90 dark:bg-zinc-900/90 text-zinc-900 dark:text-white px-6 py-3 rounded-full font-bold shadow-lg backdrop-blur-sm flex items-center gap-2 hover:scale-105 active:scale-95 disabled:opacity-50"
                 >
                   {isGenerating ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />}
